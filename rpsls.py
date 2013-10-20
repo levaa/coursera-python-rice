@@ -56,7 +56,7 @@ def rpsls(name):
     print ("Player chooses "+name) 
     print ("Computer chooses "+number_to_name(comp_number))
     print (winner)
-    print ""
+    print ("")
     
 # test your code
 rpsls("rock")
