@@ -1,38 +1,63 @@
 # implementation of card game - Memory
-# http://www.codeskulptor.org/#user24_jNBgElYVYR_7.py
 import simplegui
 import random as r
 
 # helper function to initialize globals
 def new_game():
-    global cards, width, turn, fst, prev, idex  
-    faces = [False] * 16
-    turn = 0
-    prev = -1
-    idex = -1
-    cards = zip(range(8) + range(8), [False] * 16)
+    global cards, turn, solving, solved
+    turn = state = 0
+    cards = zip(range(8) + range(8),  [False] * 16)
+    solved = set()
+    solving = set()
     r.shuffle(cards)
     label.set_text("Turns = "+str(turn))
            
 # define event handlers
 def mouseclick(pos):
-    global turn, cards, idex, prev
+    global turn, cards, solving, solved
     # add game state logic here
-    idex = pos[0] // 50
-    card_new = cards[idex]
-    card_old = cards[prev] 
+    idx = pos[0] // 50
+    card = cards[idx]
+    if not card[1]:
+        card = (card[0],True)
+        if len(solving) == 2: resolve()
+        else: solving.add((idx, card)) 
 
-    if card_new == card_old:
-        card_new = (card_new[0], True)
-        card_old = (card_old[0], True)
-    else:
-        card_new = (card_new[0], False)
-        card_old = (card_old[0], False)
-        
-    turn += 1      
-    cards[idex] = card_new
-    cards[prev] = card_old
+    show_solved()
+    hide_onsolved()
+    cards[idx] = card 
+    solving.add((idx, card))        
     label.set_text("Turns = "+str(turn))
+
+def resolve():
+    global turn, solving, solved
+    tupl1 = solving.pop()
+    tupl2 = solving.pop()
+    idex1 = tupl1[0]
+    idex2 = tupl2[0]
+    card1 = tupl1[1]
+    card2 = tupl2[1]
+    
+    print (idex1, idex2, card1, card2)
+    
+    if card1[0] == card2[0]:
+        solved.add(idex1)
+        solved.add(idex2) 
+    
+    solving = set()
+    turn += 1
+    
+def show_solved():
+    global solved, cards
+    for i in solved:
+        card = cards[i] 
+        cards[i] = (card[0], True)  
+
+def hide_onsolved():
+    global solved, cards      
+    for i in set(range(16)).difference(solved):
+        card = cards[i]
+        cards[i] = (card[0], False)  
                         
 # cards are logically 50x100 pixels in size    
 def draw(canvas):
@@ -49,7 +74,6 @@ def draw(canvas):
                                  1, "Black", "Green")               
         i += 1    
         offset += 50 
-
 
 # create frame and add a button and labels
 frame = simplegui.create_frame("Memory", 800, 100)
