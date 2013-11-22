@@ -8,7 +8,7 @@ def new_game():
     turn = state = 0
     cards = zip(range(8) + range(8),  [False] * 16)
     solved = set()
-    solving = set()
+    solving = []
     r.shuffle(cards)
     label.set_text("Turns = "+str(turn))
            
@@ -16,46 +16,37 @@ def new_game():
 def mouseclick(pos):
     global turn, cards, solving, solved
     # add game state logic here
-    idx = pos[0] // 50
-    card = cards[idx]
-    if not card[1]:
-        card = (card[0],True)
-        if len(solving) == 2: resolve()
-        else: solving.add((idx, card)) 
-
-    show_solved()
-    hide_onsolved()
-    cards[idx] = card 
-    solving.add((idx, card))        
+    solving.append(pos[0] // 50) 
+    if len(solving) == 3: resolve()
+        
+    hide_onsolved()        
+    show_solving_solved()
     label.set_text("Turns = "+str(turn))
 
 def resolve():
     global turn, solving, solved
-    tupl1 = solving.pop()
-    tupl2 = solving.pop()
-    idex1 = tupl1[0]
-    idex2 = tupl2[0]
-    card1 = tupl1[1]
-    card2 = tupl2[1]
-    
-    print (idex1, idex2, card1, card2)
+    idex1 = solving[0]
+    idex2 = solving[1]
+    idex3 = solving[2]
+    card1 = cards[idex1]
+    card2 = cards[idex2]
     
     if card1[0] == card2[0]:
         solved.add(idex1)
         solved.add(idex2) 
-    
-    solving = set()
+     
+    solving = [idex3]    
     turn += 1
     
-def show_solved():
-    global solved, cards
-    for i in solved:
+def show_solving_solved():
+    global solved, cards, solving
+    for i in solved.union(solving):
         card = cards[i] 
         cards[i] = (card[0], True)  
 
 def hide_onsolved():
     global solved, cards      
-    for i in set(range(16)).difference(solved):
+    for i in set(range(16)).difference(solved.union(solving)):
         card = cards[i]
         cards[i] = (card[0], False)  
                         
