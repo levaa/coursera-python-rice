@@ -95,7 +95,7 @@ class Ship:
         self.image_center = info.get_center()
         self.image_size = info.get_size()
         self.radius = info.get_radius()
-        
+        self.fric_val = 0.01
     def draw(self,canvas):
         #canvas.draw_circle(self.pos, self.radius, 1, "White", "White")
          if self.thrust:
@@ -115,10 +115,7 @@ class Ship:
             self.pos[1] = 0
         elif self.pos[1] // HEIGHT < 0:
             self.pos[1] = HEIGHT
-        if self.thrust:
-            direction = angle_to_vector(self.angle)
-            self.vel[0] += self.direction[0] * .12
-            self.vel[1] += self.direction[1] * .12
+        if self.thrust: self.move(True)
 
     def accel(self):
         self.angle_vel += 0.1
@@ -127,9 +124,18 @@ class Ship:
         self.angle_vel -= 0.1
     
     def move(self, flag):
-        pass
+        self.vel[0] *= 1 - self.fric_val
+        self.vel[1] *= 1 - self.fric_val
+        if flag:
+            ps = angle_to_vector(self.angle)
+            self.vel[0] += ps[0] * 0.1
+            self.vel[1] += ps[1] * 0.1            
+            ship_thrust_sound.play()
+        else:
+            ship_thrust_sound.pause()
+            ship_thrust_sound.rewind()
 
-    def stop(self)
+    def stop(self) 
          self.angle_vel = 0.0
 
     def fire(self):
