@@ -95,10 +95,11 @@ class Ship:
         self.image_center = info.get_center()
         self.image_size = info.get_size()
         self.radius = info.get_radius()
-        self.fric_val = 0.01
+        self.fric_val = 0.9999
+        self.vel_val = 0.2
     def draw(self,canvas):
         #canvas.draw_circle(self.pos, self.radius, 1, "White", "White")
-         if self.thrust:
+        if self.thrust:
             canvas.draw_image(self.image, [self.image_center[0] + self.image_size[0], self.image_center[1]], self.image_size, self.pos, self.image_size, self.angle)
         else:
             canvas.draw_image(self.image, self.image_center, self.image_size, self.pos, self.image_size, self.angle) 
@@ -117,32 +118,32 @@ class Ship:
             self.pos[1] = HEIGHT
         if self.thrust: self.move(True)
 
-    def accel(self):
-        self.angle_vel += 0.1
+    def counter_clockwise(self):
+        self.angle_vel += self.vel_val
     
-    def deccel(self):
-        self.angle_vel -= 0.1
+    def clockwise(self):
+        self.angle_vel -= self.vel_val
     
     def move(self, flag):
-        self.vel[0] *= 1 - self.fric_val
-        self.vel[1] *= 1 - self.fric_val
+        self.vel[0] *= self.fric_val
+        self.vel[1] *= self.fric_val
         if flag:
-            ps = angle_to_vector(self.angle)
-            self.vel[0] += ps[0] * 0.1
-            self.vel[1] += ps[1] * 0.1            
+            ps = angle_to_vector(self.angle)           
+            self.vel[0] += ps[0] * self.vel_val
+            self.vel[1] += ps[1] * self.vel_val            
             ship_thrust_sound.play()
         else:
             ship_thrust_sound.pause()
             ship_thrust_sound.rewind()
 
-    def stop(self) 
+    def stop(self): 
          self.angle_vel = 0.0
 
     def fire(self):
         global a_missile
         point = angle_to_vector(my_ship.angle)
         direction = [self.pos[0] + self.radius * point[0], self.pos[1] + self.radius * point[1]]
-        velocity  = [self.vel[0] + forward[0] * 5, self.vel[1] + forward[1] * self.radius]
+        velocity  = [self.vel[0] + direction[0] * 5, self.vel[1] + direction[1] * self.radius]
         a_missile = Sprite(direction, velocity, self.angle, 0, missile_image, missile_info, missile_sound)
 
 # Sprite class
@@ -195,24 +196,24 @@ def draw(canvas):
     a_missile.update()
 
     # scores
-    canvas.draw_text("Live: " + str(lives), (WIDTH - 10, HEIGHT - 10), 10, "White")
-    canvas.draw_text('Score: ' + str(score), (WIDTH - 20, HEIGHT -20), 10, "White") 
+    canvas.draw_text("Score: " + str(score), (WIDTH - 75, HEIGHT -575), 20, "White") 
+    canvas.draw_text("Live:   " + str(lives), (WIDTH - 75, HEIGHT - 555), 20, "White")
             
 # timer handler that spawns a rock    
 def rock_spawner():
     global a_rock
-    a_rock = Sprite([width * random.random(), height * random.random()], [random.random() * 3 - 1.5,random.random() * 3 - 1.5], 0, (random.random() - .5) / 8, asteroid_image, asteroid_info)
+    #a_rock = Sprite([width * random.random(), height * random.random()], [random.random() * 3 - 1.5,random.random() * 3 - 1.5], 0, (random.random() - .5) / 8, asteroid_image, asteroid_info)
  
 
 def key_up(key):
     if simplegui.KEY_MAP.get("up") == key: my_ship.move(False)
-    if simplegui.KEY_MAP.get("left") or simplegui.KEY_MAP.get("right") == key: my_ship.stop()
+    elif simplegui.KEY_MAP.get("left") or simplegui.KEY_MAP.get("right") == key: my_ship.stop()
 
 def key_down(key):
     if simplegui.KEY_MAP.get("up") == key: my_ship.move(True)
-    if simplegui.KEY_MAP.get("left") == key: my_ship.deccel()
-    if simplegui.KEY_MAP.get("right") == key: my_ship.accel()
-    if simplegui.KEY_MAP.get("space") == key: my_ship.fire()
+    elif simplegui.KEY_MAP.get("left") == key: my_ship.counter_clockwise()
+    elif simplegui.KEY_MAP.get("right") == key: my_ship.clockwise()
+    elif simplegui.KEY_MAP.get("space") == key: my_ship.fire()
  
 # initialize frame
 frame = simplegui.create_frame("Asteroids", WIDTH, HEIGHT)
