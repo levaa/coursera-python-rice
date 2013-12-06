@@ -24,7 +24,7 @@ class ImageInfo:
     def get_center(self):
         return self.center
 
-    def get_size(self):
+    def get_size(self): 
         return self.size
 
     def get_radius(self):
@@ -139,12 +139,14 @@ class Ship:
     def stop(self): 
          self.angle_vel = 0.0
 
-    def fire(self):
+    def shoot(self):
         global a_missile
-        point = angle_to_vector(my_ship.angle)
-        direction = [self.pos[0] + self.radius * point[0], self.pos[1] + self.radius * point[1]]
-        velocity  = [self.vel[0] + direction[0] * 5, self.vel[1] + direction[1] * self.radius]
-        a_missile = Sprite(direction, velocity, self.angle, 0, missile_image, missile_info, missile_sound)
+        point = angle_to_vector(self.angle)
+        direction = [self.pos[0] + self.radius * point[0], self.pos[1] + self.radius * point[1]] 
+        velocity  = [self.vel[0] + point[0] * self.radius, self.vel[1] + point[1] * self.radius]
+
+        a_missile = Sprite(direction, velocity, self.angle, 1, missile_image, missile_info, missile_sound)
+        missile_sound.play()
 
 # Sprite class
 class Sprite:
@@ -165,7 +167,7 @@ class Sprite:
             sound.play()
    
     def draw(self, canvas):
-        canvas.draw_circle(self.pos, self.radius, 1, "Red", "Red")
+        canvas.draw_image(self.image, self.image_center, self.image_size, self.pos, self.image_size, self.angle)
     
     def update(self):
         self.pos[0] += self.vel[0]
@@ -195,15 +197,16 @@ def draw(canvas):
     a_rock.update()
     a_missile.update()
 
-    # scores
+    # scores 
     canvas.draw_text("Score: " + str(score), (WIDTH - 75, HEIGHT -575), 20, "White") 
     canvas.draw_text("Live:   " + str(lives), (WIDTH - 75, HEIGHT - 555), 20, "White")
             
 # timer handler that spawns a rock    
 def rock_spawner():
     global a_rock
-    #a_rock = Sprite([width * random.random(), height * random.random()], [random.random() * 3 - 1.5,random.random() * 3 - 1.5], 0, (random.random() - .5) / 8, asteroid_image, asteroid_info)
- 
+    width = random.randrange(0, WIDTH)
+    height = random.randrange(0, HEIGHT)
+    a_rock = Sprite([width * random.random(), height * random.random()], [random.random() * 3 - 1.5,random.random() * 3 - 1.5], 0, (random.random() - .5) / 8, asteroid_image, asteroid_info)
 
 def key_up(key):
     if simplegui.KEY_MAP.get("up") == key: my_ship.move(False)
@@ -213,7 +216,7 @@ def key_down(key):
     if simplegui.KEY_MAP.get("up") == key: my_ship.move(True)
     elif simplegui.KEY_MAP.get("left") == key: my_ship.counter_clockwise()
     elif simplegui.KEY_MAP.get("right") == key: my_ship.clockwise()
-    elif simplegui.KEY_MAP.get("space") == key: my_ship.fire()
+    elif simplegui.KEY_MAP.get("space") == key: my_ship.shoot()
  
 # initialize frame
 frame = simplegui.create_frame("Asteroids", WIDTH, HEIGHT)
