@@ -262,7 +262,8 @@ def draw(canvas):
     my_ship.draw(canvas)
     process_sprite_group(rock_group, canvas)
     process_sprite_group(missile_group, canvas)
-    
+    process_sprite_group(explosion_group, canvas)
+     
     # update ship and sprites
     my_ship.update()
     if group_collide(rock_group, my_ship):  lives -= 1
@@ -280,8 +281,6 @@ def rock_spawner():
     if len(rock_group) < 12 and started:
         vel = [random.random() * 3 - 1.5, random.random() * 3 - 1.5]
         ang = (random.random() *  .5) / 8
-        pos = [random.randrange(0, WIDTH), random.randrange(0, HEIGHT)]
-        dis = dist(pos, my_ship.pos)
         pos = [random.randrange(0, WIDTH), random.randrange(0, HEIGHT)]
         rock_group.add(Sprite(pos, vel, 0, ang, asteroid_image, asteroid_info))
             
