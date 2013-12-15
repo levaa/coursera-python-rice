@@ -203,7 +203,8 @@ class Sprite:
         self.pos[1] = (self.pos[1] + self.vel[1]) % HEIGHT
 
     def collide(self, other_object):  
-      (dist(self.pos, other_object.pos) > self.radius + other_object.radius)        
+      result = dist(self.pos, other_object.pos) < self.radius + other_object.radius  
+      return result      
         
 # key handlers to control ship   
 def keydown(key):
@@ -256,7 +257,6 @@ def draw(canvas):
         started = False
         rock_group = set()
         soundtrack.rewind()
-        timer.stop()
 
     # draw ship and sprites
     my_ship.draw(canvas)
